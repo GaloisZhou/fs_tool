@@ -1,0 +1,24 @@
+{
+  "name": "fs_tool",
+  "version": "1.0.0",
+  "description": "``` Usage: node fs_remove.js [directory] [options] [name...]",
+  "main": "fs_info.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GaloisZhou/fs_tool.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GaloisZhou/fs_tool/issues"
+  },
+  "homepage": "https://github.com/GaloisZhou/fs_tool#readme",
+  "dependencies": {
+    "co": "^4.6.0",
+    "md5": "^2.1.0",
+    "mongodb": "^2.2.4"
+  }
+}

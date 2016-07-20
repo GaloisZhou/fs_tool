@@ -1,0 +1,3 @@
+node fs_remove.js /Users/galois/Pictures/test/ -f *.iml *.class *.idea .DS_Store
+node fs_info.js /Users/galois/Pictures/test/
+node fs_update_md5.js 5 5

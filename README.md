@@ -12,3 +12,6 @@ Example:
 node fs_remove.js /Users/galois/projects/galois/fs_test -f *.iml *.class *.idea
 node fs_remove.js /Users/galois/projects/galois/fs_test -d node_modules
 ```
+
+TODO
+1. 读取文件的详情,并记录下来
