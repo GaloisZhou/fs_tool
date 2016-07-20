@@ -10,6 +10,7 @@ var path = require('path');
 var child_process = require('child_process');
 
 var md5 = require('md5');
+var md5File = require('nodejs-md5').file;
 
 var fileDao = require('../dao/fileDao');
 var dateUtils = require('../utils/dateUtils');
@@ -104,7 +105,7 @@ service.saveFileInfo = function (dir, file, fileInfo, cb) {
         _fileInfo,
         {upsert: true}
     )(cb || function (err, result) {
-            console.log(err, result);
+            err && !result ? console.log(err, result) : '';
         });
 
     // fs.readFile(_filePath, function (err, data) {
@@ -126,7 +127,8 @@ service.count = function*() {
 };
 
 service.updateMd5 = function*(start, length) {
-    let _fileInfos = yield fileDao.find({}, {update_timestamp: 1}, start, length, {dir: 1, name: 1})
+    let _fileInfos = yield fileDao.find({}, {update_timestamp: 1}, start, length, {dir: 1, name: 1});
+    // let _fileInfos = yield fileDao.find({md5: {$exists: false}}, {update_timestamp: 1}, start, length, {dir: 1, name: 1});
     for (let _i = 0; _i < _fileInfos.length; _i++) {
         try {
             let _fi = _fileInfos[_i];
@@ -134,8 +136,9 @@ service.updateMd5 = function*(start, length) {
             let _dir = _fi.dir;
             let _name = _fi.name;
             let _filePath = path.join(_dir, _name);
-            let _fileData = yield service.readFileSync(_filePath);
-            let _md5 = md5(_fileData);
+            // let _fileData = yield service.readFileSync(_filePath);
+            // let _md5 = md5(_fileData);
+            let _md5 = yield service.md5File(_filePath);
             console.log('update: \t', _id);
             yield fileDao.updateOne({_id: _id}, {md5: _md5});
         } catch (e) {
@@ -149,4 +152,12 @@ service.readFileSync = function (filePath) {
     return function (cb) {
         fs.readFile(filePath, cb);
     }
+};
+
+service.md5File = function (filePath) {
+    return function (cb) {
+        md5File.quiet(filePath, function (md5) {
+            cb && cb(null, md5);
+        });
+    };
 };

@@ -360,7 +360,6 @@ class Dao {
     }
 
 }
-;
 
 
 module.exports.init = _init;

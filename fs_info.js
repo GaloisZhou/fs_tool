@@ -28,6 +28,7 @@ mongoUtil.init(config.mongoDb)(function (err, db) {
 
 var index = 0;
 function readAndSave(dir) {
+    console.log('readAndSave: \t', dir);
     fs.readdir(dir, function (err, files) {
         if (files) {
             files.forEach(file => {
