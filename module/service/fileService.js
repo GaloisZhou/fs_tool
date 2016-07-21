@@ -176,14 +176,16 @@ service.removeFileAndDb = function*(fileIds) {
         let _files = yield fileDao.find({_id: {$in: fileIds}});
         if (_files) {
             for (let _i = 0; _i < _files.length; _i++) {
-                let _f = _files[_i];
-                let _filePath = path.join(_f.dir, _f.name);
+                try {
+                    let _f = _files[_i];
+                    let _filePath = path.join(_f.dir, _f.name);
 
-                console.log(_filePath);
+                    console.log(_filePath);
 
-                let _result = yield service.removeFileSync(_filePath);
-                if (_result) {
-                    fileDao.remove({_id: _f._id});
+                    yield service.removeFileSync(_filePath);
+                    yield fileDao.remove({_id: _f._id});
+                } catch (e) {
+                    console.error(e);
                 }
             }
         }

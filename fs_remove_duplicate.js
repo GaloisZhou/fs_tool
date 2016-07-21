@@ -30,13 +30,17 @@ mongoUtil.init(config.mongoDb)(function (err, db) {
             for (let _i = 0; _i < _duplicateFiles.length; _i++) {
                 let _df = _duplicateFiles[_i];
                 let _ids = _df._ids;
+
                 _ids.splice(0, 1);
 
-                console.log(_df._ids, _ids);
-                
-                yield fileService.removeFileAndDb(_ids);
-                break;
+                try {
+                    yield fileService.removeFileAndDb(_ids);
+                } catch (e) {
+                    console.error(e);
+                }
             }
         }
+
+        console.log('finish');
     });
 });
