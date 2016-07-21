@@ -107,23 +107,10 @@ service.saveFileInfo = function (dir, file, fileInfo, cb) {
     )(cb || function (err, result) {
             err && !result ? console.log(err, result) : '';
         });
-
-    // fs.readFile(_filePath, function (err, data) {
-    //     if (data) {
-    //         _fileInfo.md5 = md5(data);
-    //     }
-    //     fileDao.updateOne(
-    //         {dir: _fileInfo.dir, name: _fileInfo.name},
-    //         _fileInfo,
-    //         {upsert: true}
-    //     )(function (err, result) {
-    //         console.log('upsert result: ', err, result);
-    //     });
-    // });
 };
 
-service.count = function*() {
-    return yield fileDao.count({});
+service.count = function*(query) {
+    return yield fileDao.count(query || {});
 };
 
 service.updateMd5 = function*(start, length) {
@@ -190,9 +177,47 @@ service.removeFileAndDb = function*(fileIds) {
             }
         }
     }
-
 };
 
+service.findOne = function (query, options) {
+    return fileDao.findOne(query, options);
+};
+
+service.moveFileByDay = function*(writeDir, dayTimestamp, query) {
+    let _dirName = dateUtils.dateFormat(new Date(dayTimestamp), 'yyyy_MM_dd');
+    writeDir = path.join(writeDir, _dirName);
+    try {
+        yield service.mkdirSync(writeDir);
+    } catch (e) {
+        // console.error(e);
+    }
+
+    let _dirExists = yield service.existsSync(writeDir);
+    console.log('_dirExists', _dirExists);
+    if (_dirExists) {
+        let _files = yield fileDao.find(query, {mtime: 1}, null, null, {dir: 1, name: 1});
+        console.log(_files);
+        console.log(_files.length);
+        if (_files) {
+            for (let _i = 0; _i < _files.length; _i++) {
+                try {
+                    let _file = _files[_i];
+                    let _filePath = path.join(_file.dir, _file.name);
+                    let _writeFilePath = path.join(writeDir, _file.name);
+
+                    console.log('move ', _filePath, ' to ', _writeFilePath);
+
+                    yield service.renameSync(_filePath, _writeFilePath);
+                    fileDao.updateOne({_id: _file._id}, {dir: writeDir});
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+    }
+};
+
+// ------------------------------------------------------------->>>>
 
 service.readFileSync = function (filePath) {
     return function (cb) {
@@ -206,3 +231,26 @@ service.removeFileSync = function (filePath) {
     }
 };
 
+
+service.mkdirSync = function (path) {
+    return function (cb) {
+        fs.mkdir(path, cb);
+    }
+};
+
+service.existsSync = function (path) {
+    return function (cb) {
+        fs.exists(path, function (isExists) {
+            cb && cb(null, isExists);
+        });
+    }
+};
+
+service.renameSync = function (oldPath, newPath) {
+    return function (cb) {
+        fs.rename(oldPath, newPath, function (err, result) {
+            console.log('----------->', err, result);
+            cb && cb(err, result);
+        });
+    }
+};

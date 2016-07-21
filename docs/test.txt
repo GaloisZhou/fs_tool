@@ -1,3 +1,18 @@
-node fs_remove.js /Users/galois/Pictures/test/ -f *.iml *.class *.idea .DS_Store
-node fs_info.js /Users/galois/Pictures/test/
-node fs_update_md5.js 5 5
+1. 删除指定的文件,或者目录
+`node fs_remove.js /Users/galois/Pictures/test/ -f *.iml *.class *.idea .DS_Store`
+
+2. 获取文件信息,并保存到 mongodb
+`node fs_info.js /Users/galois/Pictures/test/`
+
+3. 更新 mongodb 中的 md5 字段
+    `这个要多执行几次, 待完善, db.file.count({md5: {$exists: false}})`
+`node fs_update_md5.js 5 5`
+
+4. 删除重复的文件
+`node fs_remove_duplicate.js`
+
+5. 根据文件修改日期移动文件
+
+
+
+

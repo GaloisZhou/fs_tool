@@ -7,15 +7,6 @@ var co = require('co');
 global.config = require('./module/conf/config');
 var mongoUtil = require('./module/utils/mongoDbUtils');
 
-var oneTimeLength = process.argv[2] || 5;
-var processLength = process.argv[3] || 5;
-
-oneTimeLength = parseInt(oneTimeLength) || 5;
-processLength = parseInt(processLength) || 5;
-
-console.log('并发数量:\t', oneTimeLength);
-console.log('单次处理数量:\t', processLength);
-
 var fileService;
 
 mongoUtil.init(config.mongoDb)(function (err, db) {
