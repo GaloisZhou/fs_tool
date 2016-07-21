@@ -208,7 +208,7 @@ service.moveFileByDay = function*(writeDir, dayTimestamp, query) {
                     console.log('move ', _filePath, ' to ', _writeFilePath);
 
                     yield service.renameSync(_filePath, _writeFilePath);
-                    fileDao.updateOne({_id: _file._id}, {dir: writeDir});
+                    yield fileDao.updateOne({_id: _file._id}, {dir: writeDir});
                 } catch (e) {
                     console.error(e);
                 }

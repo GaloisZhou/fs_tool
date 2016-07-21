@@ -23,7 +23,7 @@ mongoUtil.init(config.mongoDb)(function (err, db) {
         let _newestFile = yield fileService.findOne(_query, {sort: {mtime: -1}});
 
         let _oldestDate = new Date(dateUtils.dateFormat(new Date(_oldestFile.mtime), 'yyyy-MM-dd 00:00:00'));
-        let _newestDate = new Date(dateUtils.dateFormat(new Date(_newestFile.mtime), 'yyyy-MM-dd 00:00:00'));
+        let _newestDate = new Date(dateUtils.dateFormat(new Date(_newestFile.mtime), 'yyyy-MM-dd 23:59:59'));
 
         console.log(_oldestDate);
         console.log(_newestDate);
@@ -47,7 +47,7 @@ mongoUtil.init(config.mongoDb)(function (err, db) {
 
             }
 
-            break;
+            // break;
 
         }
 
