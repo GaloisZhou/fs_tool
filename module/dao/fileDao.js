@@ -6,9 +6,8 @@ var Dao = require('../utils/mongoDbUtils').Dao;
 // console.log('db >>>>>>>> ', db);
 if (config) {
     console.log('init db');
-    var dao = new Dao(config.mongoDb.collections.file, db);
     
-    module.exports = dao;
+    module.exports = new Dao(config.mongoDb.collections.file, db);
 }
 
 

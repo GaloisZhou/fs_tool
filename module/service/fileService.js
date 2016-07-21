@@ -148,12 +148,6 @@ service.updateMd5 = function*(start, length) {
 };
 
 
-service.readFileSync = function (filePath) {
-    return function (cb) {
-        fs.readFile(filePath, cb);
-    }
-};
-
 service.md5File = function (filePath) {
     return function (cb) {
         md5File.quiet(filePath, function (md5) {
@@ -161,3 +155,52 @@ service.md5File = function (filePath) {
         });
     };
 };
+
+service.findDuplicate = function*() {
+    let _fields = {_id: 1, md5: 1, dir: 1, name: 1};
+    let _group = {
+        _id: {md5: "$md5"},
+        count: {$sum: 1},
+        _ids: {$push: "$_id"},
+        // filePath: {$addToSet: {$concat: ["$dir", "/", "$name"]}}
+    };
+    let _match = {count: {$gt: 1}};
+    return yield fileDao.aggregate(_fields, _group, _match);
+};
+
+service.removeFileAndDb = function*(fileIds) {
+    if (fileIds.length > 0) {
+        fileIds = fileIds.map(fi => {
+            return fileDao._id(fi);
+        });
+        let _files = yield fileDao.find({_id: {$in: fileIds}});
+        if (_files) {
+            for (let _i = 0; _i < _files.length; _i++) {
+                let _f = _files[_i];
+                let _filePath = path.join(_f.dir, _f.name);
+
+                console.log(_filePath);
+
+                let _result = yield service.removeFileSync(_filePath);
+                if (_result) {
+                    fileDao.remove({_id: _f._id});
+                }
+            }
+        }
+    }
+
+};
+
+
+service.readFileSync = function (filePath) {
+    return function (cb) {
+        fs.readFile(filePath, cb);
+    }
+};
+
+service.removeFileSync = function (filePath) {
+    return function (cb) {
+        fs.unlink(filePath, cb);
+    }
+};
+

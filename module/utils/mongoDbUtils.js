@@ -359,6 +359,68 @@ class Dao {
         }
     }
 
+
+    /**
+     * aggregation
+     *
+     例子
+     根据字段 md5 查询出重复的数据
+     this.collection.aggregate(
+     [
+     { $project: {_id: 1, md5: 1, dir: 1, name: 1} },
+     {
+         $group: {
+             _id: {md5: "$md5"},
+             count: {$sum: 1},
+             docs: {$push: "$_id"},
+             filePath: {$addToSet: {$concat: ["$dir", "/", "$name"]}}
+         }
+     },
+     {$sort: {count: -1}},
+     {$skip: 0},
+     {$limit: 10},
+     {$match: {count: {$gt: 1}}}
+     ],
+     function (err, result) {
+                console.log(err, result);
+            }
+     );
+
+     * @param fields 如果是数组, 则传递 pipeline
+     * @param group
+     * @param match
+     * @param sort
+     * @param start
+     * @param length
+     * @returns {Function}
+     */
+    aggregate(fields, group, match, sort, start, length) {
+        let c = this.collection;
+        return function (cb) {
+            let pipeline = [];
+            if (fields instanceof Array) {
+                pipeline = fields;
+            } else {
+                pipeline = [
+                    {$project: fields},
+                    {$group: group},
+                    {$match: match}
+                ];
+                if (sort) {
+                    pipeline.push({$sort: sort})
+                }
+                if (start) {
+                    pipeline.push({$skip: start})
+                }
+                if (length) {
+                    pipeline.push({$limit: length})
+                }
+            }
+            // aggregate(pipeline, options, callback)
+            c.aggregate(pipeline, cb);
+        };
+    }
+
 }
 
 
